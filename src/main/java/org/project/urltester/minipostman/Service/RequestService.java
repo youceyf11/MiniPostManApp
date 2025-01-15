@@ -1,28 +1,20 @@
 package org.project.urltester.minipostman.Service;
 
+import lombok.RequiredArgsConstructor;
 import org.project.urltester.minipostman.Requests.Request;
 import org.project.urltester.minipostman.Response.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.io.IOException;
-
 @Service
+@RequiredArgsConstructor
 public class RequestService  {
-
 
     private final RestClient restClient ;
 
-
-    @Autowired
-    public RequestService(RestClient restClient) {
-        this.restClient = restClient;
-    }
-
-    public Response sendRequest(Request request) throws IOException {
+    public Response sendRequest(Request request) {
         switch (request.requestType()){
             case GET:
                 return sendGetRequest(request);
@@ -37,7 +29,13 @@ public class RequestService  {
         }
     }
 
+
     private Response sendGetRequest(Request request) {
+        HttpHeaders headers= new HttpHeaders();
+        if(request.headers() != null){
+            request.headers().forEach(headers::set);
+        }
+        HttpEntity<String> entity= new HttpEntity<>(request.body(), headers);
         ResponseEntity<String> response = restClient.get()
                 .uri(request.url())
                 .retrieve()
@@ -46,6 +44,11 @@ public class RequestService  {
     }
 
     private Response sendDeleteRequest(Request request){
+        HttpHeaders headers= new HttpHeaders();
+        if(request.headers() != null){
+            request.headers().forEach(headers::set);
+        }
+        HttpEntity<String> entity= new HttpEntity<>(request.body(), headers);
         ResponseEntity<String> response= restClient.delete()
                 .uri(request.url())
                 .retrieve()
@@ -55,7 +58,9 @@ public class RequestService  {
 
     private Response sendPostRequest(Request request){
         HttpHeaders headers= new HttpHeaders();
-        request.headers().forEach(headers::set);
+        if(request.headers() != null){
+            request.headers().forEach(headers::set);
+        }
         HttpEntity<String> entity= new HttpEntity<>(request.body(), headers);
         ResponseEntity<String> response=restClient.post()
                 .uri(request.url())
@@ -67,7 +72,9 @@ public class RequestService  {
 
     private Response sendPutRequest(Request request){
         HttpHeaders headers= new HttpHeaders();
-        request.headers().forEach(headers::set);
+        if(request.headers() != null){
+            request.headers().forEach(headers::set);
+        }
         HttpEntity<String> entity= new HttpEntity<>(request.body(), headers);
         ResponseEntity<String> response= restClient.put()
                 .uri(request.url())
